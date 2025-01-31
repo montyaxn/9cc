@@ -2,23 +2,23 @@
 
 #include <stdio.h>
 
-//lvalのアドレスをスタックにプッシュする
+// lvalのアドレスをスタックにプッシュする
 void gen_lval(Node *node) {
   if (node->kind != ND_LVAR)
     error("代入の左辺値が変数ではありません");
-  
-  //raxにrbpを代入
+
+  // raxにrbpを代入
   printf("  mov rax, rbp\n");
-  //目的の変数が指し示すアドレスをraxに入れる
+  // 目的の変数が指し示すアドレスをraxに入れる
   printf("  sub rax, %d\n", node->offset);
-  //そのアドレスをスタックに入れる
+  // そのアドレスをスタックに入れる
   printf("  push rax\n");
 }
 
-void gen(Node* node){
-  switch(node->kind){
+void gen(Node *node) {
+  switch (node->kind) {
   case ND_NUM:
-    printf("  push %d\n",node->val);
+    printf("  push %d\n", node->val);
     return;
     // LVARの値をプッシュする
   case ND_LVAR:
@@ -33,13 +33,37 @@ void gen(Node* node){
     return;
 
   case ND_ASSIGN:
+    // 代入先のアドレスをpush
     gen_lval(node->lhs);
+    // 代入する値をpush
     gen(node->rhs);
+    // 代入する値をrdiに
     printf("  pop rdi\n");
+    // 代入先のアドレスをraxに
     printf("  pop rax\n");
+    // 代入
     printf("  mov [rax], rdi\n");
+    // 代入した値をプッシュして後で使う
     printf("  push rdi\n");
     return;
+  case ND_RETURN:
+    // returnする値をpush
+    gen(node->lhs);
+    // returnする値をraxに
+    printf("  pop rax\n");
+
+    // リターンアドレスをrspに代入してret
+
+    // rsp(スタックの先頭)はrbpのとこを指している
+    printf("  mov rsp, rbp\n");
+    // スタックの先頭はrbpの一つ前、すなわちリターンアドレスを指している
+    // rbpの中身は前のrbpのアドレスを指す
+    printf("  pop rbp\n");
+    // 万全なのでリターン
+    printf("  ret\n");
+    return;
+  default:
+    break;
   }
 
   gen(node->lhs);
@@ -48,7 +72,7 @@ void gen(Node* node){
   printf("  pop rdi\n");
   printf("  pop rax\n");
   switch (node->kind) {
-  //四則演算
+  // 四則演算
   case ND_ADD:
     printf("  add rax, rdi\n");
     break;
@@ -66,7 +90,7 @@ void gen(Node* node){
     printf("  idiv rdi\n");
     break;
 
-  //比較
+  // 比較
   case ND_EQ:
     printf("  cmp rax, rdi\n");
     printf("  sete al\n");
@@ -91,11 +115,9 @@ void gen(Node* node){
     printf("  movzb rax, al\n");
     break;
 
-  
-
+  default:
+    break;
   }
-
-  
 
   printf("  push rax\n");
 }

@@ -33,7 +33,7 @@ int main(int argc,char **argv){
   //プロローグ
   printf("  push rbp\n");
   printf("  mov rbp, rsp\n");
-  printf("  sub rsp, 208\n");
+  printf("  sub rsp, %d\n",locals ? locals->offset : 0);
 
   // 先頭の式から順にコード生成
   for (int i = 0; code[i]; i++) {
@@ -45,8 +45,13 @@ int main(int argc,char **argv){
   }
 
   // リターンアドレスをrspに代入してret
+
+  // rsp(スタックの先頭)はrbpのとこを指している
   printf("  mov rsp, rbp\n");
+  // スタックの先頭はrbpの一つ前、すなわちリターンアドレスを指している
+  // rbpの中身は前のrbpのアドレスを指す
   printf("  pop rbp\n");
+  // 万全にリターン
   printf("  ret\n");
   return 0;
 }

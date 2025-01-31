@@ -1,4 +1,5 @@
 void error(char *fmt, ...);
+void error_at(char *loc, char *fmt, ...);
 
 
 extern char* user_input;
@@ -8,6 +9,7 @@ typedef enum{
   TK_RESERVED,
   TK_IDENT,
   TK_NUM,
+  TK_RETURN,
   TK_EOF
 } TokenKind;
 
@@ -25,7 +27,20 @@ struct Token {
 extern Token* token;
 void dump_token(Token* tok);
 
-void *tokenize(char* p);
+void tokenize(char* p);
+
+typedef struct LVar LVar;
+
+// ローカル変数の型
+struct LVar {
+  LVar *next; // 次の変数かNULL
+  char *name; // 変数の名前
+  int len;    // 名前の長さ
+  int offset; // RBPからのオフセット
+};
+
+// ローカル変数
+extern LVar *locals;
 
 typedef enum {
   ND_NUM,
@@ -45,6 +60,9 @@ typedef enum {
   //代入
   ND_ASSIGN, 
   ND_LVAR,
+
+  //RETURN
+  ND_RETURN,
   
 } NodeKind;
 
