@@ -9,7 +9,9 @@ typedef enum{
   TK_RESERVED,
   TK_IDENT,
   TK_NUM,
-  TK_RETURN,
+  // TK_RETURN,
+  // TK_IF,
+  // TK_ELSE,
   TK_EOF
 } TokenKind;
 
@@ -63,6 +65,10 @@ typedef enum {
 
   //RETURN
   ND_RETURN,
+
+  //IF
+  ND_IF,
+  ND_IF_ELSE,
   
 } NodeKind;
 
@@ -82,3 +88,5 @@ extern Node *code[100];
 void program();
 
 void gen(Node* node);
+
+extern int if_id;

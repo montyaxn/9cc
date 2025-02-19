@@ -25,6 +25,7 @@ int main(int argc,char **argv){
   //   dump_node(code[i],0);
   //   printf("--- NODE [%d] END ---\n\n",i);
   // }
+  // printf("--- DUMP NODES END ---\n\n");
 
   printf(".intel_syntax noprefix\n");
   printf(".global main\n");

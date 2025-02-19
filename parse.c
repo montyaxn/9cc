@@ -22,14 +22,14 @@ bool consume_reserved(char *op) {
   return true;
 }
 
-bool consume_return() {
-  if (token->kind != TK_RETURN) {
-    return false;
-  }
-  Token *tok = token;
-  token = token->next;
-  return true;
-}
+// bool consume_return() {
+//   if (token->kind != TK_RETURN) {
+//     return false;
+//   }
+//   Token *tok = token;
+//   token = token->next;
+//   return true;
+// }
 
 Token *consume_ident() {
   if (token->kind != TK_IDENT) {
@@ -119,6 +119,12 @@ void dump_node(Node *node, int depth) {
   case ND_RETURN:
     printf("ND_RETURN\n");
     break;
+  case ND_IF:
+    printf("ND_IF\n");
+    break;
+  case ND_IF_ELSE:
+    printf("ND_IF_ELSE\n");
+    break;
   }
 
   dump_node(node->lhs, depth + 1);
@@ -144,6 +150,9 @@ Node *new_node_num(int val) {
 
 // program    = stmt*
 // stmt       = expr ";"
+//            | "if" "(" expr ")" stmt ("else" stmt)?
+//            | "while" "(" expr ")"
+//            | "for" "(" expr? ";" expr? ";" expr? ")" stmt
 //            | "return" expr ";"
 // expr       = assign
 // assign     = equality ("=" assign)?
@@ -175,17 +184,39 @@ void program() {
   code[i] = NULL;
 }
 
+int if_id = 0;
+
 Node *stmt() {
   Node *node;
-  if (consume_return()) {
+  if (consume_reserved("return")) {
     node = calloc(1, sizeof(Node));
     node->kind = ND_RETURN;
     node->lhs = expr();
+    expect(";");
+    return node;
+  } else if (consume_reserved("if")){
+    node = calloc(1, sizeof(Node));
+    node->kind = ND_IF;
+    node->val = if_id;
+    if_id += 1;
+    expect("(");
+    node->lhs = expr();
+    expect(")");
+    node->rhs = stmt();
+    if(consume_reserved("else")){
+      Node *node_else = calloc(1,sizeof(Node));
+      node_else->kind = ND_IF_ELSE;
+      node_else->val = node->val;
+      node_else->lhs = node;
+      node_else->rhs = stmt();
+      return node_else;
+    }
+    return node;
   } else {
     node = expr();
+    expect(";");
+    return node;
   }
-  expect(";");
-  return node;
 }
 
 Node *expr() { return assign(); }

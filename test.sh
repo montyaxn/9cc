@@ -29,6 +29,9 @@ assert 10 '-(-10);'
 assert 20 'a=20;'
 assert 20 'a=10;a+10;'
 assert 30 'abc=20;def=10;abc+def;'
+assert 5 'a=1;b1=1;b_=1;b1a_=1;ok=1;a+b1+b_+b1a_+ok;'
 assert 12 'return 12;'
+assert 10 'if(1) 10;'
+assert 31 'if(0) 5; else 31;'
 
 echo OK

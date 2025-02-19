@@ -25,9 +25,16 @@ void dump_token(Token *tok) {
     printf("TK_NUM %d\n", tok->val);
     break;
 
-  case TK_RETURN:
-    printf("TK_RETURN\n");
-    break;
+  // case TK_RETURN:
+  //   printf("TK_RETURN\n");
+  //   break;
+
+  // case TK_IF:
+  //   printf("TK_IF\n");
+  //   break;
+  
+  // case TK_ELSE:
+  //   printf("TK_ELSE\n");
 
   case TK_RESERVED:
     printf("TK_RESERVED ");
@@ -60,6 +67,7 @@ void tokenize(char *p) {
   Token head;
   head.next = NULL;
   Token *cur = &head;
+  
 
   while (*p) {
     if (isspace(*p)) {
@@ -67,8 +75,18 @@ void tokenize(char *p) {
       continue;
     }
     if (strncmp(p, "return", 6) == 0 && !is_alnum(p[6])) {
-      cur = new_token(TK_RETURN, cur, p, 6);
+      cur = new_token(TK_RESERVED, cur, p, 6);
       p += 6;
+      continue;
+    }
+    if (strncmp(p, "if", 2) == 0 && !is_alnum(p[2])) {
+      cur = new_token(TK_RESERVED, cur, p, 2);
+      p += 2;
+      continue;
+    }
+    if (strncmp(p, "else", 4) == 0 && !is_alnum(p[4])) {
+      cur = new_token(TK_RESERVED, cur, p, 4);
+      p += 4;
       continue;
     }
     if (strncmp(p, "==", 2) == 0 || strncmp(p, "<=", 2) == 0 ||
@@ -91,11 +109,6 @@ void tokenize(char *p) {
         p++;
       }
       cur = new_token(TK_IDENT, cur, p-len, len);
-      continue;
-    }
-    if ('a' <= *p && *p <= 'z') {
-      cur = new_token(TK_IDENT, cur, p, 1);
-      p++;
       continue;
     }
     if (isdigit(*p)) {
